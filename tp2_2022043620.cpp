@@ -1,6 +1,10 @@
 #include <iostream>
 #include <vector>
 
+#define INVIAVEL -1
+#define ILIMITADO 0
+#define OTIMO 1
+
 using namespace std;
 
 // Multiplica a matriz A pela matriz B
@@ -19,6 +23,46 @@ vector<vector<int>> mult(vector<vector<int>>& A, vector<vector<int>>& B) {
         }
     }
     return C;
+}
+
+// Constrói o tableau inicial
+void tableau_inicial(vector<vector<int>>& tableau, vector<vector<int>>& A, vector<vector<int>>& b, vector<vector<int>>& c) {
+    int n = A.size(), m = A[0].size();
+    tableau = vector<vector<int>>(n+1, vector<int>(n+m+1));
+    for(int i = 0; i < n; i++) tableau[0][i] = 0;
+    for(int i = n; i < n+m; i++) tableau[0][i] = -c[i][0];
+    tableau[0][n+m] = 0;
+
+    for(int i = 0; i < n; i++) {
+        for(int j = 0; j < n; j++) {
+            if(i == j) tableau[i+1][j] = 1;
+            else tableau[i+1][j] = 0;
+        }
+    }
+
+    for(int i = 0; i < n; i++) {
+        for(int j = 0; j < m; j++) {
+            tableau[i+1][n+j] = A[i][j];
+        }
+    }
+
+    for(int i = 0; i < n; i++) tableau[i+1][n+m] = b[i][0];
+
+    // Alterando linhas onde o b[i] era negativo
+    for(int i = 0; i < n; i++) {
+        if(tableau[i+1][n+m] < 0) {
+            for(int j = 0; j < n+m+1; j++) tableau[i+1][j] *= -1;
+        }
+    }
+
+}
+
+// Executa o simplex e retorna o tableau final
+pair<int, vector<vector<int>>> simplex(vector<vector<int>>& A, vector<vector<int>>& b, vector<vector<int>>& c) {
+    int n = A.size(), m = A[0].size();
+    vector<vector<int>> tableau; 
+    tableau_inicial(tableau, A, b, c);
+    
 }
 
 int main() {
