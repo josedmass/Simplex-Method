@@ -154,9 +154,14 @@ vector<int> idx_canonico(const vector<vector<double>>& tableau, int n, int m) {
 void canonico(vector<vector<double>>& tableau, const vector<int>& can, int n) {
     int it = 1;
     for(int idx : can) {
+        //print_tableau(tableau);
         //cout << "|" << idx << "|" << endl;
-        int val = -tableau[0][idx];
-        if(val == 0) continue;
+        double val = -tableau[0][idx];
+        //cout << val << endl;
+        if(val == 0) {
+            it++;
+            continue;
+        }
         vector<vector<double>> U;
         matriz_pivoteamento(U, val, it, 0, n);
         //print_tableau(tableau); cout << endl;
@@ -176,7 +181,10 @@ pair<int, vector<vector<double>>> simplex(vector<vector<double>>& A, vector<vect
     int n = A.size(), m = A[0].size();
     vector<vector<double>> tableau; 
     tableau_inicial(tableau, A, b, c);
+    //print_tableau(tableau);
     vector<int> can = idx_canonico(tableau, n, m);
+    // for(int idx : can) cout << idx << " ";
+    // cout << endl;
     
     if(can.size() == 0) { // Não há uma base canônica explícita, então buscamos resolver a PL auxiliar
         vector<vector<double>> aux_tab;
@@ -185,11 +193,13 @@ pair<int, vector<vector<double>>> simplex(vector<vector<double>>& A, vector<vect
     }
     else {
         // 1. Garantir que esteja na forma canônica
+        //print_tableau(tableau);
         canonico(tableau, can, n);
+        //print_tableau(tableau);
         // 2. Encontrar uma coluna na primeira linha de valor negativo
         for(int i = n; i < n+m; i++) {
-            //print_tableau(tableau);
             if(tableau[0][i] < 0) {
+                print_tableau(tableau);
                 // 2.1. Buscamos a linha que tem a menor razão
                 int line = 0;
                 double razao = 100000000;
@@ -228,6 +238,7 @@ pair<int, vector<vector<double>>> simplex(vector<vector<double>>& A, vector<vect
 
             }
         }
+        print_tableau(tableau);
         return {OTIMO, tableau}; // Não tem mais nenhum valor negativo
     }
 
@@ -256,13 +267,13 @@ int main() {
         cout << "otima" << endl;
         cout << simp.second[0][n+m] << endl; // valor ótimo
         vector<int> can = idx_canonico(simp.second, n, m);
-        vector<int> x(m, 0);
+        vector<double> x(m, 0);
         int it = 1;
         for(int idx : can) {
             x[idx-n] = simp.second[it][n+m];
             it++;
         }
-        for(int val : x) cout << val << " "; // valores das variáveis ótimas
+        for(double val : x) cout << val << " "; // valores das variáveis ótimas
         cout << endl;
         for(int i = 0; i < n; i++) cout << simp.second[0][i] << " "; // certificado
         cout << endl;
