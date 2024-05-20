@@ -96,7 +96,7 @@ void tableau_inicial(vector<vector<double>>& tableau, const vector<vector<double
 
 // Constrói o tableau auxiliar, quando não há uma base canônica trivial, seguindo a formatação do slide
 void aux_tableau_inicial(vector<vector<double>>& aux_tab, const vector<vector<double>>& tableau, int n, int m) {
-    aux_tab = vector<vector<double>>(n+1, vector<double>(n+m+n+1));
+    aux_tab = vector<vector<double>>(n+2, vector<double>(n+m+n+1, 0));
     for(int i = 0; i < n; i++) aux_tab[0][i] = tableau[0][i];
     for(int i = n; i < n+m; i++) aux_tab[0][i] = 0;
     for(int i = n+m; i < n+m+n; i++) aux_tab[0][i] = 1;
@@ -122,10 +122,11 @@ void aux_tableau_inicial(vector<vector<double>>& aux_tab, const vector<vector<do
     }
 
     for(int i = 0; i < n; i++) aux_tab[i+1][n+m+n] = tableau[i+1][n+m];
+    for(int j = n; j < n+m; j++) aux_tab[n+1][j] = tableau[0][j]; //linha final para facilitar
 }
 
 // Retorna um vetor com os índices da base canônica
-vector<int> idx_canonico(const vector<vector<double>>& tableau, int n, int m) {
+vector<int> idx_canonico(const vector<vector<double>>& tableau, int n, int m, bool flag) {
     vector<int> ans, aux;
     for(int i = 1; i <= n; i++) {
         for(int j = n; j < n+m; j++) {
@@ -146,7 +147,7 @@ vector<int> idx_canonico(const vector<vector<double>>& tableau, int n, int m) {
         }
     }
 
-    if(ans.size() < n) ans = aux;
+    if(ans.size() < n && !flag) ans = aux;
     return ans;
 }
 
@@ -172,7 +173,57 @@ void canonico(vector<vector<double>>& tableau, const vector<int>& can, int n) {
 }
 
 // Executa a primeira fase do simplex, verificando se a PL é viável
-pair<int, vector<vector<double>>> Fase1_Simplex(vector<vector<double>>& tableau, int n, int m) {
+void fase1_simplex(vector<vector<double>>& tableau, int n, int m) {
+    // Passo 1: fazer com que as variáveis artificiais adicionadas sejam iguais a 0 no objetivo artificial
+    // Basta somar cada uma das linhas x(-1) a primeira linha
+    vector<vector<double>> U(n+2, vector<double>(n+2, 0));
+    for(int j = 1; j < n+1; j++) U[0][j] = -1;
+    for(int i = 0; i < n+2; i++) {
+        for(int j = 0; j < n+2; j++) {
+            if(i == j) U[i][j] = 1;
+        }
+    }
+    tableau = mult(U, tableau);
+
+    //print_tableau(tableau);
+
+    //cout << "oii" << endl;
+
+    // Passo 2: realizar o algoritmo do simplex com o auxiliar
+    for(int i = n; i < n+m+n; i++) {
+        if(tableau[0][i] < 0) {
+            //print_tableau(tableau);
+            int line = 0;
+            double razao = 100000000;
+            for(int j = 1; j <= n; j++) {
+                //cout << razao << endl;
+                if(tableau[j][i] > 0) {
+                    if((tableau[j][n+m+n]*1.0 / tableau[j][i]) < razao) {
+                        razao = tableau[j][n+m+n]*1.0 / tableau[j][i];
+                        line = j;
+                    }
+                }
+            }
+            //cout << "hello || " << line << "|" << i << endl;
+            if(tableau[line][i] != 1) {
+                //cout << "line: " << line << " | i: " << i << endl;
+                //cout << 1.0/tableau[line][i] << endl;
+                vector<vector<double>> D;
+                matriz_multiplicacao(D, line, 1.0/tableau[line][i], n+1);
+                tableau = mult(D, tableau);
+            }
+            //cout << "hello" << endl;
+            for(int j = 0; j <= n+1; j++) {
+                if(j == line) continue;
+                vector<vector<double>> U;
+                matriz_pivoteamento(U, -tableau[j][i], line, j, n+1);
+                tableau = mult(U, tableau);
+            }
+            i = n-1;
+        }
+    }
+
+    //print_tableau(tableau);
 
 }
 
@@ -182,65 +233,81 @@ pair<int, vector<vector<double>>> simplex(vector<vector<double>>& A, vector<vect
     vector<vector<double>> tableau; 
     tableau_inicial(tableau, A, b, c);
     //print_tableau(tableau);
-    vector<int> can = idx_canonico(tableau, n, m);
+    vector<int> can = idx_canonico(tableau, n, m, false);
     // for(int idx : can) cout << idx << " ";
     // cout << endl;
     
     if(can.size() == 0) { // Não há uma base canônica explícita, então buscamos resolver a PL auxiliar
+        //cout << "||" << "INICIO Fase 1 Simplex" << "||" << endl;
         vector<vector<double>> aux_tab;
         aux_tableau_inicial(aux_tab, tableau, n, m);
-        //pair<int, vector<vector<double>>> fase1 = Fase1_Simplex(aux_tab, n, m);
-    }
-    else {
-        // 1. Garantir que esteja na forma canônica
-        //print_tableau(tableau);
-        canonico(tableau, can, n);
-        //print_tableau(tableau);
-        // 2. Encontrar uma coluna na primeira linha de valor negativo
-        for(int i = n; i < n+m; i++) {
-            if(tableau[0][i] < 0) {
-                print_tableau(tableau);
-                // 2.1. Buscamos a linha que tem a menor razão
-                int line = 0;
-                double razao = 100000000;
-                for(int j = 1; j <= n; j++) {
-                    if(tableau[j][i] > 0) {
-                        if((tableau[j][n+m]*1.0 / tableau[j][i]) < razao) {
-                            razao = tableau[j][n+m]*1.0 / tableau[j][i];
-                            line = j;
-                        }
-                    }
+        //print_tableau(aux_tab);
+        fase1_simplex(aux_tab, n, m);
+        //print_tableau(aux_tab);
+        if(aux_tab[0][n+m+n] < 0) return {INVIAVEL, aux_tab};
+        else {
+            for(int i = 0; i <= n; i++) {
+                for(int j = 0; j < n+m; j++) {
+                    tableau[i][j] = aux_tab[i][j];
                 }
-                if(line == 0) return {ILIMITADO, tableau};
-                else {
-                    //cout << "|" << line << "|" << endl;
-                    if(tableau[line][i] != 1) {
-                        vector<vector<double>> D;
-                        matriz_multiplicacao(D, line, 1.0/tableau[line][i], n);
-                        // for(int it1 = 0; it1 <= n; it1++) {
-                        //     for(int it2 = 0; it2 <= n; it2++)
-                        //         cout << D[it1][it2] << " ";
-                        //     cout << endl;
-                        // }
-                        tableau = mult(D, tableau);
-                        // cout << "D" << endl;
-                        // print_tableau(tableau);
-                    }
-                    // Pivoteamos, fazendo com que todos os elementos além de line sejam 0
-                    for(int j = 0; j <= n; j++) {
-                        if(j == line) continue;
-                        vector<vector<double>> U;
-                        matriz_pivoteamento(U, -tableau[j][i], line, j, n);
-                        tableau = mult(U, tableau);
-                    }
-                    i = n;
-                }
-
             }
+            for(int i = 0; i <= n; i++) tableau[i][n+m] = aux_tab[i][n+m+n];
+            for(int j = n; j < n+m; j++) tableau[0][j] = aux_tab[n+1][j];
+            tableau[0][n+m] = aux_tab[n+1][n+m+n];
         }
-        print_tableau(tableau);
-        return {OTIMO, tableau}; // Não tem mais nenhum valor negativo
     }
+    //cout << "||" << "FIM Fase 1 Simplex" << "||" << endl;
+    //print_tableau(tableau);
+    can = idx_canonico(tableau, n, m, false);
+    // 1. Garantir que esteja na forma canônica
+    //print_tableau(tableau);
+    canonico(tableau, can, n);
+    //print_tableau(tableau);
+    // 2. Encontrar uma coluna na primeira linha de valor negativo
+    //cout << "|| INICIO PIVOTEAMENTO ||" << endl;
+    for(int i = n; i < n+m; i++) {
+        if(tableau[0][i] < 0) {
+            //print_tableau(tableau);
+            // 2.1. Buscamos a linha que tem a menor razão
+            int line = 0;
+            double razao = 100000000;
+            for(int j = 1; j <= n; j++) {
+                if(tableau[j][i] > 0) {
+                    if((tableau[j][n+m]*1.0 / tableau[j][i]) < razao) {
+                        razao = tableau[j][n+m]*1.0 / tableau[j][i];
+                        line = j;
+                    }
+                }
+            }
+            if(line == 0) return {ILIMITADO, tableau};
+            else {
+                //cout << "|" << line << "|" << endl;
+                if(tableau[line][i] != 1) {
+                    vector<vector<double>> D;
+                    matriz_multiplicacao(D, line, 1.0/tableau[line][i], n);
+                    // for(int it1 = 0; it1 <= n; it1++) {
+                    //     for(int it2 = 0; it2 <= n; it2++)
+                    //         cout << D[it1][it2] << " ";
+                    //     cout << endl;
+                    // }
+                    tableau = mult(D, tableau);
+                    // cout << "D" << endl;
+                    // print_tableau(tableau);
+                }
+                // Pivoteamos, fazendo com que todos os elementos além de line sejam 0
+                for(int j = 0; j <= n; j++) {
+                    if(j == line) continue;
+                    vector<vector<double>> U;
+                    matriz_pivoteamento(U, -tableau[j][i], line, j, n);
+                    tableau = mult(U, tableau);
+                }
+                i = n-1;
+            }
+
+        }
+    }
+    //print_tableau(tableau);
+    return {OTIMO, tableau}; // Não tem mais nenhum valor negativo
 
 }
 
@@ -263,13 +330,21 @@ int main() {
 
     //Passo 2: execução do algoritmo simplex
     pair<int, vector<vector<double>>> simp = simplex(A, b, c);
-    if(simp.first == OTIMO) {
+    if(simp.first == INVIAVEL) {
+        cout << "inviavel" << endl;
+        for(int j = 0; j < n; j++) cout << simp.second[0][j] << " ";
+        cout << endl;
+    }
+    else if(simp.first == OTIMO) {
         cout << "otima" << endl;
         cout << simp.second[0][n+m] << endl; // valor ótimo
-        vector<int> can = idx_canonico(simp.second, n, m);
+        //print_tableau(simp.second);
+        vector<int> can = idx_canonico(simp.second, n, m, true);
+        //cout << can.size() << endl;
         vector<double> x(m, 0);
         int it = 1;
         for(int idx : can) {
+            //cout << idx << " ";
             x[idx-n] = simp.second[it][n+m];
             it++;
         }
@@ -280,7 +355,7 @@ int main() {
     }
     else if(simp.first == ILIMITADO) {
         cout << "ilimitada" << endl;
-        vector<int> can = idx_canonico(simp.second, n, m);
+        vector<int> can = idx_canonico(simp.second, n, m, true);
         vector<int> x(m, 0);
         int it = 1;
         for(int idx : can) {

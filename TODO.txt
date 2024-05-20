@@ -1,1 +1,1 @@
-1. Implementar simplex duas fases
+1. Fazer casos onde a quantidade de valores positivos é menor que o número de restrições
