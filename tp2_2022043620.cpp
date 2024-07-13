@@ -237,15 +237,12 @@ pair<int, vector<vector<double>>> simplex(const vector<vector<double>>& A, const
             for(int i = 1; i <= n; i++) {
                 for(int j = 0; j < n+m; j++) {
                     tableau[i][j] = aux_tab[i][j];
-                    //cout << fixed << setprecision(3) << tableau[i][j] << " ";
                 }
-                //cout << endl;
             }
             for(int j = 0; j < n; j++) tableau[0][j] = aux_tab[n+1][j];
             for(int i = 0; i <= n; i++) tableau[i][n+m] = aux_tab[i][n+m+n];
             for(int j = n; j < n+m; j++) tableau[0][j] = aux_tab[n+1][j];
             tableau[0][n+m] = aux_tab[n+1][n+m+n];
-            //print_tableau(tableau);
         }
     }
 
@@ -355,7 +352,6 @@ int main() {
         for(int j = 0; j < m; j++)
             cin >> A[i][j];
         cin >> b[i][0];
-        //cout << b[i][0] << endl;
     }
 
     // Passo 2: execução do algoritmo simplex
