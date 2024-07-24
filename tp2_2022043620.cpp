@@ -13,7 +13,7 @@ using namespace std;
 void print_tableau(const vector<vector<double>>& tableau) {
     for(int i = 0; i < tableau.size(); i++) {
         for(int j = 0; j < tableau[i].size(); j++) {
-            cout << tableau[i][j] << " ";
+            cout << tableau[i][j] << '\t';
         }
         cout << endl;
     }
@@ -182,7 +182,6 @@ void fase1_simplex(vector<vector<double>>& tableau, int n, int m) {
         }
     }
     tableau = mult(U, tableau);
-
     // 2. Rodamos o simplex com o tableau obtido
     for(int i = n; i < n+m+n; i++) {
         // 2.1. Buscamos uma coluna i com valor negativo
@@ -288,13 +287,13 @@ pair<int, vector<vector<double>>> simplex(const vector<vector<double>>& A, const
 
 void print_inviavel(const vector<vector<double>>& tableau, int n, int m) {
     cout << "inviavel" << endl;
-    for(int j = 0; j < n; j++) cout << tableau[0][j] << " "; //certificado
+    for(int j = 0; j < n; j++) cout << fixed << setprecision(3) << tableau[0][j] << " "; //certificado
     cout << endl;
 }
 
 void print_otimo(const vector<vector<double>>& tableau, int n, int m) {
     cout << "otima" << endl;
-    cout << tableau[0][n+m] << endl; //valor ótimo
+    cout << fixed << setprecision(3) << tableau[0][n+m] << endl; //valor ótimo
     vector<int> can = idx_canonico(tableau, n, m, true); //true para pegar a base existentes, mesmo que não seja completa
     vector<double> x(m, 0);
     int it = 1;
@@ -302,9 +301,9 @@ void print_otimo(const vector<vector<double>>& tableau, int n, int m) {
         x[idx-n] = tableau[it][n+m];
         it++;
     }
-    for(double val : x) cout << val << " ";  //valores ótimos de x
+    for(double val : x) cout << fixed << setprecision(3) << val << " ";  //valores ótimos de x
     cout << endl;
-    for(int j = 0; j < n; j++) cout << tableau[0][j] << " "; //certificado
+    for(int j = 0; j < n; j++) cout << fixed << setprecision(3) << tableau[0][j] << " "; //certificado
     cout << endl;
 }
 
@@ -317,7 +316,7 @@ void print_ilimitado(const vector<vector<double>>& tableau, int n, int m) {
         x[idx-n] = tableau[it][n+m];
         it++;
     }
-    for(double val : x) cout << val << " "; //valores da base alcançada
+    for(double val : x) cout << fixed << setprecision(3) << val << " "; //valores da base alcançada
     cout << endl;
     vector<double> d(m, 0);
     int i = n;
@@ -333,7 +332,7 @@ void print_ilimitado(const vector<vector<double>>& tableau, int n, int m) {
         d[idx-n] = -tableau[it][i];
         it++;
     }
-    for(double val : d) cout << val << " "; //certificado
+    for(double val : d) cout << fixed << setprecision(3) << val << " "; //certificado
     cout << endl;
 }
 
