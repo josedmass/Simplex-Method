@@ -13,11 +13,18 @@ $$
     a_{m1} & a_{m2} & \cdots & a_{nm}
     \end{pmatrix}
     \quad
-    B = \begin{pmatrix}
-    b_{11} \\
-    b_{12} \\
+    b = \begin{pmatrix}
+    b_1 \\
+    b_2 \\
     \vdots \\
-    b_{n1}
+    b_n
+    \end{pmatrix}
+    \quad
+    c = \begin{pmatrix}
+    c_1 \\
+    c_2 \\
+    \vdots \\
+    c_m
     \end{pmatrix}
 $$
 
