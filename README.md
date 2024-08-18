@@ -73,9 +73,10 @@ $$
 
 onde
 
-$1 \leq n \leq 100\\$
-$1 \leq m \leq 100\\$
-$\forall i \in 1 \leq i \leq n, \forall j \in 1 \leq j\leq m: |a_{ij}| \leq 100, |b_i| \leq 100, |c_j| \leq 100$
+$1 \leq n \leq 100$  
+$1 \leq m \leq 100$  
+
+$\forall i \in \{1,...,n\} \text{ e } \forall j \in \{1,...,m\}: |a_{ij}| \leq 100, |b_i| \leq 100, |c_j| \leq 100$
 
 ## Como usar
 1. Compilar o programa
