@@ -5,6 +5,17 @@ Implementação do algoritmo Simplex para resolução de problemas de otimizaç�
 - José Eduardo Duarte Massucato
 
 ## Entrada
+Buscamos resolver a programação linear definida por
+
+$$
+    \begin{align*}
+    \text{max} \quad & c^T x \\
+    \text{sujeito a} \quad & A x = b \\
+    & x \geq 0
+    \end{align*}
+$$
+
+
 $$
     A = \begin{pmatrix}
     a_{11} & a_{12} & \cdots & a_{1m} \\
