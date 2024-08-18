@@ -1,0 +1,4 @@
+Vou pegar o código que está na tarefa do Moodle
+
+Na documentação não fala nada de como os arquivos devem ser passados na linha de entrada. No meu caso,
+eles devem ser passados com um '<' (isto é, eu não passo por args)

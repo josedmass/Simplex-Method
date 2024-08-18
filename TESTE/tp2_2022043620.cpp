@@ -3,6 +3,7 @@
 #include <cstring>
 #include <iomanip>
 
+#define TOL 0.00000001
 #define MAX 200
 #define INVIAVEL -1
 #define ILIMITADO 0
@@ -10,40 +11,19 @@
 
 using namespace std;
 
-double tableau[MAX+1][2*MAX+1], auxtableau[MAX+2][3*MAX+1];
+double tableau[MAX+1][2*MAX+1], auxtableau[MAX+2][3*MAX+2];
 int can[MAX];
-
-// Função auxiliar utilizada para depuração
-void print_auxtableau(int n, int m) {
-    for(int i = 0; i <= n+1; i++) {
-        for(int j = 0; j <= n+m+n; j++) {
-            cout << auxtableau[i][j] << '\t';
-        }
-        cout << endl;
-    }
-    cout << endl;
-}
-
-// Função auxiliar utilizada para depuração
-void print_tableau(int n, int m) {
-    for(int i = 0; i <= n; i++) {
-        for(int j = 0; j <= n+m; j++) {
-            cout << tableau[i][j] << " ";
-        }
-        cout << endl;
-    }
-    cout << endl;
-}
 
 // Procura uma base trivial no tableau
 bool idx_canonico(int n, int m) {
-    bool flag = true;
+    bool flag = true, res = true, aux = false;
     int idx = 0;
     for(int i = 1; i <= n; i++) {
-        if(idx+1 < i) break;
         for(int j = n; j < n+m; j++) {
             flag = true;
+            aux = false;
             if(tableau[i][j] == 1) {
+                aux = true;
                 for(int k = 1; k <= n; k++) {
                     if(k == i) continue;
                     if(tableau[k][j] != 0) { // Não pertence à base
@@ -52,13 +32,15 @@ bool idx_canonico(int n, int m) {
                     }
                 }
                 if(flag) {
-                    can[idx++] = j;
+                    can[idx] = j;
                     break;
                 }
             }
         }
+        if(!flag || !aux) res = false;
+        idx++;
     }
-    return idx == n;
+    return res;
 }
 
 // Garante que esteja na forma canônica
@@ -82,8 +64,8 @@ int simplex_aux(int n, int m) {
     for(int i = 2; i <= n+1; i++) {
         auxtableau[i][n+m+n] = tableau[i-1][n+m];
         for(int j = 0; j < n; j++) {
+            auxtableau[i][j] = tableau[i-1][j];
             if(i-2 == j) {
-                auxtableau[i][j] = 1;
                 auxtableau[i][j+n+m] = 1;
             }
         }
@@ -102,7 +84,7 @@ int simplex_aux(int n, int m) {
         auxtableau[1][j] = 1;
     }
 
-    print_auxtableau(n, m);
+    //print_auxtableau(n, m);
 
     // 2. Deixar canônico: L1 = -L2-L3...
     for(int j = 0; j <= n+m+n; j++) {
@@ -111,11 +93,9 @@ int simplex_aux(int n, int m) {
         }
     }
 
-    print_auxtableau(n, m);
-
     // 3. Rodamos o Método Simplex no auxtableau
     for(int j = n; j < n+m+n; j++) {
-        if(auxtableau[1][j] < 0) {// Coluna j a ser melhorada
+        if(auxtableau[1][j] < 0-TOL) {// Coluna j a ser melhorada
             // Buscamos a linha i que tenha a menor razão
             int line = 0;
             double razao = 100000000;
@@ -172,7 +152,7 @@ int simplex(int n, int m) {
 
     // 3. Iniciamos o simplex
     for(int j = n; j < n+m; j++) {
-        if(tableau[0][j] < 0) { // Coluna j a ser melhorada
+        if(tableau[0][j] < 0-TOL) { // Coluna j a ser melhorada
             // Buscamos a linha i que tenha a menor razão
             int line = 0;
             double razao = 100000000;
@@ -206,6 +186,48 @@ int simplex(int n, int m) {
     return OTIMO;
 }
 
+void print_otimo(int n, int m) {
+    cout << "otima" << endl;
+    cout << fixed << setprecision(3) << tableau[0][n+m] << endl; //valor ótimo
+    idx_canonico(n, m); double x[m]; memset(x, 0.0, sizeof(x));
+    for(int i = 0; i < n; i++)
+        x[can[i]-n] = tableau[i+1][n+m];
+    for(int i = 0; i < m; i++)
+        cout << fixed << setprecision(3) << x[i] << " "; //valores de x
+    cout << endl;
+    for(int j = 0; j < n; j++) cout << fixed << setprecision(3) << tableau[0][j] << " "; //certificado
+    cout << endl;
+}
+
+void print_ilimitado(int n, int m) {
+    cout << "ilimitada" << endl;
+
+    idx_canonico(n, m); double x[m]; memset(x, 0.0, sizeof(x));
+    for(int i = 0; i < n; i++)
+        x[can[i]-n] = tableau[i+1][n+m];
+    for(int i = 0; i < m; i++)
+        cout << fixed << setprecision(3) << x[i] << " "; //valores de x
+    cout << endl;
+
+    memset(x, 0.0, sizeof(x));
+    for(int j = n; j < n+m; j++) {
+        if(tableau[0][j] < 0-TOL) { // podia ser melhorada
+            x[j-n] = 1;
+            for(int i = 1; i <= n; i++)
+                x[can[i-1]-n] = -tableau[i][j];
+            break;
+        }
+    }
+    for(int i = 0; i < m; i++)
+        cout << fixed << setprecision(3) << x[i] << " "; //certificado
+    cout << endl;
+}
+
+void print_inviavel(int n, int m) {
+    cout << "inviavel" << endl;
+    for(int j = 0; j < n; j++) cout << fixed << setprecision(3) << auxtableau[1][j] << " "; //certificado
+    cout << endl;
+}
 
 int main() {
 
@@ -222,11 +244,19 @@ int main() {
             cin >> tableau[i][j+n];
         }
     }
-    //print_tableau(n, m);
-    simplex(n, m);
-    print_tableau(n, m);
-    print_auxtableau(n, m);
+    int res = simplex(n, m);
 
+    switch (res) {
+        case OTIMO:
+            print_otimo(n, m);
+            break;
+        case ILIMITADO:
+            print_ilimitado(n, m);
+            break;
+        default:
+            print_inviavel(n, m);
+            break;
+    }
 
     return 0;
 }
