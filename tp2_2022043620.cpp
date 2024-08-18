@@ -84,8 +84,6 @@ int simplex_aux(int n, int m) {
         auxtableau[1][j] = 1;
     }
 
-    //print_auxtableau(n, m);
-
     // 2. Deixar canônico: L1 = -L2-L3...
     for(int j = 0; j <= n+m+n; j++) {
         for(int i = 2; i <= n+1; i++) {

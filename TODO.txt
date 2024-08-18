@@ -1,2 +1,0 @@
-1. Fazer pré-processamento, tirando restrições LD, pois eles podem dar problema depois
-2. No simplex duas fases, verificar a sutileza de ocorrer degeneração na primeira fase
