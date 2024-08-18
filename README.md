@@ -7,12 +7,18 @@ Implementação do algoritmo Simplex para resolução de problemas de otimizaç�
 ## Funcionalidades
 O algoritmo busca resolver a programação linear definida por
 $$
-    \begin{align*}
-    \text{max} \quad & c^T x \\
-    \text{sujeito a} \quad & A x = b \\
-    & x \geq 0
-    \end{align*}
+\text{max} \quad c^T x
 $$
+
+sujeito a:
+$$
+A x = b
+$$
+
+$$
+x \geq 0
+$$
+
 e encontrar o certificado que comprove seu resultado, onde
 
 $$
@@ -62,10 +68,17 @@ $$
 
 onde
 
-$1 \leq n \leq 100$ 
+$1 \leq n \leq 100$
 $1 \leq m \leq 100$
 $\forall i \in 1 \leq i \leq n, \forall j \in 1 \leq j\leq m: |a_{ij}| \leq 100, |b_i| \leq 100, |c_j| \leq 100$
 
-
 ## Como usar
-...
+1. Compilar o programa
+```
+g++ main.cpp -o exe
+```
+
+2. Executar com algum arquivo de entrada
+```
+./exe < <caminho_para_arquivo_de_entrada>
+```
