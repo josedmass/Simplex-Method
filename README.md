@@ -6,14 +6,18 @@ Implementação do algoritmo Simplex para resolução de problemas de otimizaç�
 
 ## Funcionalidades
 O algoritmo busca resolver a programação linear definida por
+
 $$
 \text{max} \quad c^T x
 $$
 
 sujeito a:
+
 $$
 A x = b
 $$
+
+e
 
 $$
 x \geq 0
@@ -22,27 +26,28 @@ $$
 e encontrar o certificado que comprove seu resultado, onde
 
 $$
-    A = \begin{pmatrix}
-    a_{11} & a_{12} & \cdots & a_{1m} \\
-    a_{21} & a_{22} & \cdots & a_{2m} \\
-    \vdots & \vdots & \ddots & \vdots \\
-    a_{m1} & a_{m2} & \cdots & a_{nm}
-    \end{pmatrix}
-    \quad
-    b = \begin{pmatrix}
-    b_1 \\
-    b_2 \\
-    \vdots \\
-    b_n
-    \end{pmatrix}
-    \quad
-    c = \begin{pmatrix}
-    c_1 \\
-    c_2 \\
-    \vdots \\
-    c_m
-    \end{pmatrix}
+A = \begin{pmatrix}
+a_{11} & a_{12} & \cdots & a_{1m} \\
+a_{21} & a_{22} & \cdots & a_{2m} \\
+\vdots & \vdots & \ddots & \vdots \\
+a_{m1} & a_{m2} & \cdots & a_{nm}
+\end{pmatrix}
+\quad
+b = \begin{pmatrix}
+b_1 \\
+b_2 \\
+\vdots \\
+b_n
+\end{pmatrix}
+\quad
+c = \begin{pmatrix}
+c_1 \\
+c_2 \\
+\vdots \\
+c_m
+\end{pmatrix}
 $$
+
 Diante disso, temos:
 - Se o problema possui solução ótima, é impresso **"otima"**, seguido do seu valor ótimo, dos valores ótimos do vetor de solução X e, na última linha, o certificado de otimalidade.
 - Se o problema é ilimitado, é impresso **"ilimitada"**, seguido de uma solução viável para X e, na última linha, um certificado de ilimitabilidade.
@@ -68,8 +73,8 @@ $$
 
 onde
 
-$1 \leq n \leq 100$
-$1 \leq m \leq 100$
+$1 \leq n \leq 100\\$
+$1 \leq m \leq 100\\$
 $\forall i \in 1 \leq i \leq n, \forall j \in 1 \leq j\leq m: |a_{ij}| \leq 100, |b_i| \leq 100, |c_j| \leq 100$
 
 ## Como usar
